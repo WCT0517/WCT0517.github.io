@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>国风消消乐</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700&display=swap');
+    
+    :root {
+      --color-primary: #C8392D;
+      --color-secondary: #F5A623;
+      --color-accent-green: #4CAF50;
+      --color-accent-blue: #3F51B5;
+      --color-accent-pink: #E91E63;
+      --color-bg-main: #FFF8E1;
+      --color-bg-card: #FDF5E6;
+      --color-text-primary: #2D2D2D;
+      --color-text-secondary: #757575;
+      --color-border: #D4AF37;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--color-bg-main);
+      min-height: 100vh;
+      overflow: hidden;
+      background-image: 
+        radial-gradient(ellipse at 20% 80%, rgba(200, 57, 45, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(245, 166, 35, 0.08) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 15 30 25 Q25 15 30 5' fill='none' stroke='%23D4AF37' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E");
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-family: 'Noto Sans SC', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary), #A52A2A);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(200, 57, 45, 0.4);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(200, 57, 45, 0.1);
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    
+    .main-menu {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 40px 0;
+    }
+    
+    .game-title {
+      font-family: 'Ma Shan Zheng', serif;
+      font-size: 52px;
+      color: var(--color-primary);
+      text-align: center;
+      margin-bottom: 10px;
+      animation: titlePulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes titlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--color-text-secondary);
+      margin-bottom: 30px;
+    }
+    
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 280px;
+    }
+    
+    .decoration {
+      position: absolute;
+      font-size: 40px;
+      opacity: 0.6;
+    }
+    
+    .decoration-left { left: 10px; top: 50%; transform: translateY(-50%); }
+    .decoration-right { right: 10px; top: 50%; transform: translateY(-50%); }
+    
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--color-bg-card);
+      padding: 15px 20px;
+      border-radius: 16px;
+      margin-bottom: 15px;
+      border: 2px solid var(--color-border);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+    
+    .level-info { text-align: center; }
+    .level-label { font-size: 14px; color: var(--color-text-secondary); }
+    .level-number { font-family: 'Ma Shan Zheng', serif; font-size: 36px; color: var(--color-primary); }
+    
+    .stats-container { display: flex; gap: 20px; }
+    .stat-box { text-align: center; min-width: 70px; }
+    .stat-label { font-size: 12px; color: var(--color-text-secondary); }
+    .stat-value { font-size: 28px; font-weight: 700; }
+    .stat-value.score { color: var(--color-secondary); }
+    .stat-value.moves { color: var(--color-accent-green); }
+    
+    .target-info {
+      background: linear-gradient(135deg, #FDF5E6, #FFF8E1);
+      padding: 10px 20px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      border: 1px solid var(--color-border);
+    }
+    
+    .target-text { font-size: 16px; color: var(--color-text-secondary); }
+    .target-value { font-size: 24px; font-weight: 700; color: var(--color-primary); }
+    
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      background: linear-gradient(145deg, #8B4513, #A0522D);
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      border: 3px solid var(--color-border);
+      aspect-ratio: 1;
+    }
+    
+    .cell {
+      aspect-ratio: 1;
+      background: linear-gradient(145deg, #FFF8E1, #F5E6D3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cell:hover { transform: scale(1.05); z-index: 1; }
+    
+    .cell.selected {
+      background: linear-gradient(145deg, #FFE082, #FFD54F);
+      box-shadow: 0 0 15px rgba(245, 166, 35, 0.6);
+      transform: scale(1.1);
+      z-index: 2;
+    }
+    
+    .cell.matched { animation: matchAnim 0.3s ease forwards; }
+    
+    @keyframes matchAnim {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    
+    .cell.special-bomb::after {
+      content: '💥';
+      position: absolute;
+      font-size: 12px;
+      bottom: 2px;
+      right: 2px;
+    }
+    
+    .cell.special-rainbow::after {
+      content: '🌈';
+      position: absolute;
+      font-size: 12px;
+      bottom: 2px;
+      right: 2px;
+    }
+    
+    .element {
+      font-size: clamp(18px, 5vw, 32px);
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+    
+    .game-footer {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .footer-btn {
+      background: var(--color-bg-card);
+      border: 2px solid var(--color-border);
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .footer-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .combo-display {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Ma Shan Zheng', serif;
+      font-size: 48px;
+      color: var(--color-secondary);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+      z-index: 100;
+      animation: comboAnim 0.8s ease forwards;
+    }
+    
+    @keyframes comboAnim {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+    }
+    
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: var(--color-bg-card);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      border: 3px solid var(--color-border);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalPop 0.3s ease;
+    }
+    
+    @keyframes modalPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-title { font-family: 'Ma Shan Zheng', serif; font-size: 36px; margin-bottom: 10px; }
+    .modal-title.win { color: var(--color-accent-green); }
+    .modal-title.lose { color: var(--color-primary); }
+    .modal-score { font-size: 48px; font-weight: 700; color: var(--color-secondary); margin: 20px 0; }
+    .modal-stars { font-size: 40px; margin-bottom: 20px; }
+    .modal-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+    
+    .leaderboard-screen { flex: 1; overflow-y: auto; }
+    .leaderboard-title { font-family: 'Ma Shan Zheng', serif; font-size: 36px; color: var(--color-primary); text-align: center; margin-bottom: 20px; }
+    .leaderboard-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+    .leaderboard-tab { padding: 8px 16px; border: 2px solid var(--color-border); border-radius: 8px; background: transparent; cursor: pointer; font-size: 14px; }
+    .leaderboard-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+    
+    .leaderboard-list { background: var(--color-bg-card); border-radius: 16px; overflow: hidden; border: 2px solid var(--color-border); }
+    .leaderboard-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(212, 175, 55, 0.3); }
+    .leaderboard-item:last-child { border-bottom: none; }
+    .leaderboard-rank { font-size: 24px; font-weight: 700; width: 40px; text-align: center; }
+    .leaderboard-rank.gold { color: #FFD700; }
+    .leaderboard-rank.silver { color: #C0C0C0; }
+    .leaderboard-rank.bronze { color: #CD7F32; }
+    .leaderboard-info { flex: 1; text-align: left; padding-left: 15px; }
+    .leaderboard-name { font-weight: 600; color: var(--color-text-primary); }
+    .leaderboard-level { font-size: 12px; color: var(--color-text-secondary); }
+    .leaderboard-score { font-size: 20px; font-weight: 700; color: var(--color-secondary); }
+    .empty-leaderboard { padding: 40px; text-align: center; color: var(--color-text-secondary); }
+    
+    .settings-screen { flex: 1; }
+    .settings-title { font-family: 'Ma Shan Zheng', serif; font-size: 36px; color: var(--color-primary); text-align: center; margin-bottom: 30px; }
+    .settings-group { background: var(--color-bg-card); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 2px solid var(--color-border); }
+    .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+    .settings-label { font-size: 16px; color: var(--color-text-primary); }
+    
+    .toggle {
+      width: 50px;
+      height: 26px;
+      background: #ccc;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .toggle.active { background: var(--color-primary); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .toggle.active::after { transform: translateX(24px); }
+    
+    .input-group { display: flex; flex-direction: column; gap: 10px; }
+    .input-group label { font-size: 14px; color: var(--color-text-secondary); }
+    .input-group input { padding: 12px; border: 2px solid var(--color-border); border-radius: 8px; font-size: 16px; background: #fff; }
+    .input-group input:focus { outline: none; border-color: var(--color-primary); }
+    
+    .progress-bar { width: 100%; height: 8px; background: rgba(0, 0, 0, 0.1); border-radius: 4px; margin-top: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); border-radius: 4px; transition: width 0.3s ease; }
+    
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-bg-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .loading-text { font-family: 'Ma Shan Zheng', serif; font-size: 36px; color: var(--color-primary); margin-bottom: 20px; }
+    .loading-spinner { width: 50px; height: 50px; border: 4px solid var(--color-border); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .multiplayer-btn { background: linear-gradient(135deg, var(--color-accent-green), #388E3C); }
+    .multiplayer-section { margin-top: 20px; padding: 15px; background: var(--color-bg-card); border-radius: 12px; border: 2px solid var(--color-border); }
+    .multiplayer-status { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 10px; }
+    .multiplayer-players { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .player-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; }
+    .multiplayer-chat { margin-top: 15px; border-top: 1px solid var(--color-border); padding-top: 15px; }
+    .chat-messages { max-height: 100px; overflow-y: auto; margin-bottom: 10px; font-size: 12px; }
+    .chat-message { padding: 4px 0; }
+    .chat-input { display: flex; gap: 8px; }
+    .chat-input input { flex: 1; padding: 8px; border: 1px solid var(--color-border); border-radius: 6px; }
+    
+    .stats-section { margin-top: 20px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card { background: var(--color-bg-card); padding: 15px; border-radius: 12px; border: 2px solid var(--color-border); text-align: center; }
+    .stat-card-label { font-size: 12px; color: var(--color-text-secondary); }
+    .stat-card-value { font-size: 24px; font-weight: 700; color: var(--color-primary); }
+  </style>
+</head>
+<body>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">国风消消乐</div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div class="container">
+    <div class="screen active" id="mainMenu">
+      <div class="main-menu">
+        <div class="decoration decoration-left">🏮</div>
+        <div class="decoration-right">🏮</div>
+        
+        <div class="game-title">国风消消乐</div>
+        <div class="subtitle">Chinese Match 3</div>
+        
+        <div class="menu-buttons">
+          <button class="btn btn-primary" onclick="startGame()">🎮 开始游戏</button>
+          <button class="btn btn-secondary" onclick="showMultiplayer()">🌐 多人在线</button>
+          <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 排行榜</button>
+          <button class="btn btn-secondary" onclick="showStats()">📊 我的数据</button>
+          <button class="btn btn-secondary" onclick="showSettings()">⚙️ 设置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="gameScreen">
+      <div class="game-screen">
+        <div class="game-header">
+          <div class="level-info">
+            <div class="level-label">关卡</div>
+            <div class="level-number" id="levelDisplay">1</div>
+          </div>
+          <div class="stats-container">
+            <div class="stat-box">
+              <div class="stat-label">分数</div>
+              <div class="stat-value score" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">步数</div>
+              <div class="stat-value moves" id="movesDisplay">25</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="target-info">
+          <div class="target-text">目标分数: <span class="target-value" id="targetDisplay">1000</span></div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
+        </div>
+        
+        <div class="game-board" id="gameBoard"></div>
+        
+        <div class="game-footer">
+          <button class="footer-btn" onclick="showMainMenu()">🏠 菜单</button>
+          <button class="footer-btn" onclick="restartLevel()">🔄 重玩</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="leaderboardScreen">
+      <div class="leaderboard-screen">
+        <div class="leaderboard-title">排行榜</div>
+        
+        <div class="leaderboard-tabs">
+          <button class="leaderboard-tab active" onclick="switchLeaderboard('local')">本地</button>
+          <button class="leaderboard-tab" onclick="switchLeaderboard('cloud')">全服</button>
+        </div>
+        
+        <div class="menu-buttons" style="margin-bottom: 20px;">
+          <button class="btn btn-secondary btn-small" onclick="showMainMenu()">← 返回</button>
+        </div>
+        
+        <div class="leaderboard-list" id="leaderboardList">
+          <div class="empty-leaderboard">暂无记录</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="statsScreen">
+      <div class="settings-screen">
+        <div class="settings-title">我的数据</div>
+        
+        <div class="menu-buttons" style="margin-bottom: 20px;">
+          <button class="btn btn-secondary btn-small" onclick="showMainMenu()">← 返回</button>
+        </div>
+        
+        <div class="stats-section">
+          <div class="settings-group">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-card-label">总游戏次数</div>
+                <div class="stat-card-value" id="totalGames">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-label">最高分数</div>
+                <div class="stat-card-value" id="highScore">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-label">最高关卡</div>
+                <div class="stat-card-value" id="maxLevel">1</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-label">总得分</div>
+                <div class="stat-card-value" id="totalScore">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="settingsScreen">
+      <div class="settings-screen">
+        <div class="settings-title">设置</div>
+        
+        <div class="menu-buttons" style="margin-bottom: 20px;">
+          <button class="btn btn-secondary btn-small" onclick="showMainMenu()">← 返回</button>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-item">
+            <span class="settings-label">🎵 游戏音效</span>
+            <div class="toggle active" id="soundToggle" onclick="toggleSound()"></div>
+          </div>
+          <div class="settings-item">
+            <span class="settings-label">🎵 背景音乐</span>
+            <div class="toggle active" id="musicToggle" onclick="toggleMusic()"></div>
+          </div>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-item">
+            <span class="settings-label">👤 玩家昵称</span>
+          </div>
+          <div class="input-group">
+            <input type="text" id="nicknameInput" placeholder="请输入昵称" maxlength="10">
+          </div>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-item">
+            <span class="settings-label">🗑️ 清空数据</span>
+          </div>
+          <button class="btn btn-secondary" style="width: 100%;" onclick="clearData()">清空所有进度和排行榜</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="multiplayerScreen">
+      <div class="settings-screen">
+        <div class="settings-title">多人在线</div>
+        
+        <div class="menu-buttons" style="margin-bottom: 20px;">
+          <button class="btn btn-secondary btn-small" onclick="showMainMenu()">← 返回</button>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-item">
+            <span class="settings-label">🏠 创建房间</span>
+          </div>
+          <button class="btn btn-primary" style="width: 100%;" onclick="createRoom()">创建房间</button>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-item">
+            <span class="settings-label">🚪 加入房间</span>
+          </div>
+          <div class="input-group">
+            <input type="text" id="roomCodeInput" placeholder="请输入房间号" maxlength="6">
+          </div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="joinRoom()">加入房间</button>
+        </div>
+        
+        <div class="multiplayer-section" id="roomSection" style="display: none;">
+          <div class="multiplayer-status">
+            房间号: <strong id="roomCode">------</strong> | 玩家: <span id="playerCount">0</span>/30
+          </div>
+          <div class="multiplayer-players" id="playerList"></div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="startMultiplayerGame()">开始游戏</button>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="leaveRoom()">离开房间</button>
+          
+          <div class="multiplayer-chat">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+              <input type="text" id="chatInput" placeholder="发送消息..." maxlength="50">
+              <button class="btn btn-small btn-primary" onclick="sendChat()">发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="winModal">
+    <div class="modal">
+      <div class="modal-title win">🎉 恭喜过关!</div>
+      <div class="modal-stars" id="winStars">⭐⭐⭐</div>
+      <div class="modal-score" id="winScore">0</div>
+      <div class="modal-text" id="winText">太厉害了！</div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeModal(); showMainMenu();">菜单</button>
+        <button class="btn btn-primary" onclick="nextLevel()">下一关 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="loseModal">
+    <div class="modal">
+      <div class="modal-title lose">😢 挑战失败</div>
+      <div class="modal-score" id="loseScore">0</div>
+      <div class="modal-text" id="loseText">再接再厉！</div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeModal(); showMainMenu();">菜单</button>
+        <button class="btn btn-primary" onclick="restartLevel()">再试一次</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ 音频系统 ============
+    class AudioManager {
+      constructor() {
+        this.ctx = null;
+        this.soundEnabled = true;
+      }
+      
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      
+      playTone(freq, duration, type = 'sine', volume = 0.3) {
+        if (!this.soundEnabled || !this.ctx) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+      
+      playMatch() { this.playTone(800, 0.1, 'sine', 0.2); }
+      playSwap() { this.playTone(400, 0.08, 'triangle', 0.15); }
+      playCombo() { this.playTone(600, 0.15, 'sine', 0.25); }
+      playWin() { 
+        this.playTone(523, 0.15, 'sine', 0.2);
+        setTimeout(() => this.playTone(659, 0.15, 'sine', 0.2), 150);
+        setTimeout(() => this.playTone(784, 0.2, 'sine', 0.2), 300);
+      }
+      playLose() { this.playTone(300, 0.3, 'sawtooth', 0.15); }
+      playClick() { this.playTone(1000, 0.05, 'square', 0.1); }
+    }
+    
+    const audio = new AudioManager();
+    
+    // ============ 游戏配置 ============
+    const ELEMENTS = ['🏮', '🀄', '🏺', '💰', '☁️', '🌸'];
+    const BOARD_SIZE = 8;
+    const CLOUD_API = 'https://your-cloud-server.com/api'; // 替换为云端服务器地址
+    
+    let gameState = {
+      board: [],
+      score: 0,
+      moves: 25,
+      level: 1,
+      targetScore: 1000,
+      selectedCell: null,
+      isProcessing: false,
+      combo: 0,
+      soundEnabled: true,
+      musicEnabled: true,
+      nickname: '玩家',
+      isMultiplayer: false,
+      roomId: null,
+      playerId: null
+    };
+    
+    let stats = {
+      totalGames: 0,
+      highScore: 0,
+      maxLevel: 1,
+      totalScore: 0
+    };
+    
+    let levelConfigs = [
+      { target: 1000, moves: 25 },
+      { target: 1500, moves: 25 },
+      { target: 2000, moves: 24 },
+      { target: 2500, moves: 23 },
+      { target: 3000, moves: 22 },
+      { target: 3500, moves: 22 },
+      { target: 4000, moves: 21 },
+      { target: 5000, moves: 20 },
+      { target: 6000, moves: 20 },
+      { target: 8000, moves: 18 }
+    ];
+    
+    // ============ 存储管理 ============
+    function loadSettings() {
+      const settings = JSON.parse(localStorage.getItem('chineseMatch3_settings') || '{}');
+      gameState.soundEnabled = settings.soundEnabled !== false;
+      gameState.musicEnabled = settings.musicEnabled !== false;
+      gameState.nickname = settings.nickname || '玩家';
+      gameState.level = settings.currentLevel || 1;
+      
+      audio.soundEnabled = gameState.soundEnabled;
+      
+      document.getElementById('soundToggle').classList.toggle('active', gameState.soundEnabled);
+      document.getElementById('musicToggle').classList.toggle('active', gameState.musicEnabled);
+      document.getElementById('nicknameInput').value = gameState.nickname;
+    }
+    
+    function loadStats() {
+      stats = JSON.parse(localStorage.getItem('chineseMatch3_stats') || JSON.stringify(stats));
+      updateStatsUI();
+    }
+    
+    function saveSettings() {
+      const settings = {
+        soundEnabled: gameState.soundEnabled,
+        musicEnabled: gameState.musicEnabled,
+        nickname: gameState.nickname,
+        currentLevel: gameState.level
+      };
+      localStorage.setItem('chineseMatch3_settings', JSON.stringify(settings));
+    }
+    
+    function saveStats() {
+      localStorage.setItem('chineseMatch3_stats', JSON.stringify(stats));
+    }
+    
+    function updateStatsUI() {
+      document.getElementById('totalGames').textContent = stats.totalGames;
+      document.getElementById('highScore').textContent = stats.highScore;
+      document.getElementById('maxLevel').textContent = stats.maxLevel;
+      document.getElementById('totalScore').textContent = stats.totalScore;
+    }
+    
+    function toggleSound() {
+      audio.init();
+      gameState.soundEnabled = !gameState.soundEnabled;
+      audio.soundEnabled = gameState.soundEnabled;
+      document.getElementById('soundToggle').classList.toggle('active', gameState.soundEnabled);
+      saveSettings();
+      if (gameState.soundEnabled) audio.playClick();
+    }
+    
+    function toggleMusic() {
+      gameState.musicEnabled = !gameState.musicEnabled;
+      document.getElementById('musicToggle').classList.toggle('active', gameState.musicEnabled);
+      saveSettings();
+      if (gameState.soundEnabled) audio.playClick();
+    }
+    
+    function clearData() {
+      if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+        localStorage.removeItem('chineseMatch3_settings');
+        localStorage.removeItem('chineseMatch3_leaderboard');
+        localStorage.removeItem('chineseMatch3_stats');
+        gameState.level = 1;
+        gameState.nickname = '玩家';
+        stats = { totalGames: 0, highScore: 0, maxLevel: 1, totalScore: 0 };
+        document.getElementById('nicknameInput').value = '玩家';
+        updateStatsUI();
+        alert('数据已清空！');
+      }
+    }
+    
+    // ============ 游戏核心逻辑 ============
+    function generateBoard() {
+      const board = [];
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        board[row] = [];
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          board[row][col] = { type: getRandomElement(row, col, board), special: null };
+        }
+      }
+      
+      while (hasMatches(board)) {
+        removeMatches(board);
+        fillBoard(board);
+      }
+      
+      return board;
+    }
+    
+    function getRandomElement(row, col, board) {
+      const available = [...ELEMENTS];
+      
+      if (row >= 2 && board[row-1][col].type === board[row-2][col].type) {
+        available.splice(available.indexOf(board[row-1][col].type), 1);
+      }
+      
+      if (col >= 2 && board[row][col-1].type === board[row][col-2].type) {
+        available.splice(available.indexOf(board[row][col-1].type), 1);
+      }
+      
+      return available[Math.floor(Math.random() * available.length)];
+    }
+    
+    function hasMatches(board) {
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          if (checkMatchAt(board, row, col)) return true;
+        }
+      }
+      return false;
+    }
+    
+    function checkMatchAt(board, row, col) {
+      const elem = board[row][col].type;
+      
+      if (col >= 2 && board[row][col-1].type === elem && board[row][col-2].type === elem) return true;
+      if (row >= 2 && board[row-1][col].type === elem && board[row-2][col].type === elem) return true;
+      
+      return false;
+    }
+    
+    function findMatches(board) {
+      const matches = new Set();
+      const special生成 = [];
+      
+      // 横向匹配
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE - 2; col++) {
+          const elem = board[row][col].type;
+          if (elem && elem === board[row][col+1].type && elem === board[row][col+2].type) {
+            let matchLen = 3;
+            while (col + matchLen < BOARD_SIZE && board[row][col].type === board[row][col + matchLen].type) {
+              matchLen++;
+            }
+            
+            for (let i = 0; i < matchLen; i++) {
+              matches.add(`${row},${col + i}`);
+            }
+            
+            // 生成特殊元素
+            if (matchLen >= 5 && !special生成.some(s => s.row === row && s.col === col)) {
+              special生成.push({ row, col, type: 'rainbow' });
+            } else if (matchLen >= 4 && !special生成.some(s => s.row === row && s.col === col)) {
+              special生成.push({ row, col, type: 'bomb' });
+            }
+          }
+        }
+      }
+      
+      // 纵向匹配
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        for (let row = 0; row < BOARD_SIZE - 2; row++) {
+          const elem = board[row][col].type;
+          if (elem && elem === board[row+1][col].type && elem === board[row+2][col].type) {
+            let matchLen = 3;
+            while (row + matchLen < BOARD_SIZE && board[row][col].type === board[row + matchLen][col].type) {
+              matchLen++;
+            }
+            
+            for (let i = 0; i < matchLen; i++) {
+              matches.add(`${row + i},${col}`);
+            }
+            
+            if (matchLen >= 5 && !special生成.some(s => s.row === row && s.col === col)) {
+              special生成.push({ row, col, type: 'rainbow' });
+            } else if (matchLen >= 4 && !special生成.some(s => s.row === row && s.col === col)) {
+              special生成.push({ row, col, type: 'bomb' });
+            }
+          }
+        }
+      }
+      
+      return {
+        matches: Array.from(matches).map(s => {
+          const [r, c] = s.split(',').map(Number);
+          return { row: r, col: c };
+        }),
+        special生成
+      };
+    }
+    
+    function removeMatches(board) {
+      const { matches } = findMatches(board);
+      matches.forEach(({ row, col }) => {
+        board[row][col] = { type: null, special: null };
+      });
+      return matches.length;
+    }
+    
+    function fillBoard(board) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        let emptySpaces = 0;
+        
+        for (let row = BOARD_SIZE - 1; row >= 0; row--) {
+          if (board[row][col].type === null) {
+            emptySpaces++;
+          } else if (emptySpaces > 0) {
+            board[row + emptySpaces][col] = board[row][col];
+            board[row][col] = { type: null, special: null };
+          }
+        }
+        
+        for (let row = 0; row < emptySpaces; row++) {
+          board[row][col] = { type: ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)], special: null };
+        }
+      }
+    }
+    
+    function renderBoard() {
+      const boardEl = document.getElementById('gameBoard');
+      boardEl.innerHTML = '';
+      
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          
+          const cellData = gameState.board[row][col];
+          if (cellData && cellData.type) {
+            const elem = document.createElement('span');
+            elem.className = 'element';
+            elem.textContent = cellData.type;
+            cell.appendChild(elem);
+            
+            if (cellData.special === 'bomb') cell.classList.add('special-bomb');
+            if (cellData.special === 'rainbow') cell.classList.add('special-rainbow');
+          }
+          
+          cell.addEventListener('click', () => handleCellClick(row, col));
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+    
+    function handleCellClick(row, col) {
+      audio.init();
+      if (gameState.isProcessing || gameState.moves <= 0) return;
+      
+      const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+      
+      if (!gameState.selectedCell) {
+        gameState.selectedCell = { row, col };
+        cell.classList.add('selected');
+      } else {
+        const prevCell = document.querySelector(
+          `.cell[data-row="${gameState.selectedCell.row}"][data-col="${gameState.selectedCell.col}"]`
+        );
+        
+        if (gameState.selectedCell.row === row && gameState.selectedCell.col === col) {
+          cell.classList.remove('selected');
+          gameState.selectedCell = null;
+        } else if (isAdjacent(gameState.selectedCell, { row, col })) {
+          prevCell.classList.remove('selected');
+          swapAndCheck(gameState.selectedCell, { row, col });
+          gameState.selectedCell = null;
+        } else {
+          prevCell.classList.remove('selected');
+          gameState.selectedCell = { row, col };
+          cell.classList.add('selected');
+        }
+      }
+    }
+    
+    function isAdjacent(pos1, pos2) {
+      const rowDiff = Math.abs(pos1.row - pos2.row);
+      const colDiff = Math.abs(pos1.col - pos2.col);
+      return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+    }
+    
+    async function swapAndCheck(pos1, pos2) {
+      gameState.isProcessing = true;
+      
+      swap(pos1, pos2);
+      renderBoard();
+      audio.playSwap();
+      
+      await sleep(150);
+      
+      const { matches } = findMatches(gameState.board);
+      
+      if (matches.length === 0) {
+        swap(pos1, pos2);
+        renderBoard();
+        gameState.isProcessing = false;
+        return;
+      }
+      
+      gameState.moves--;
+      updateUI();
+      
+      await processMatches();
+      
+      gameState.isProcessing = false;
+      checkGameEnd();
+    }
+    
+    function swap(pos1, pos2) {
+      const temp = gameState.board[pos1.row][pos1.col];
+      gameState.board[pos1.row][pos1.col] = gameState.board[pos2.row][pos2.col];
+      gameState.board[pos2.row][pos2.col] = temp;
+    }
+    
+    async function processMatches() {
+      let combo = 0;
+      
+      while (true) {
+        const { matches, special生成 } = findMatches(gameState.board);
+        
+        if (matches.length === 0) break;
+        
+        combo++;
+        const matchScore = matches.length * 10 * combo;
+        gameState.score += matchScore;
+        
+        if (combo > 1) {
+          showCombo(combo);
+          audio.playCombo();
+        } else {
+          audio.playMatch();
+        }
+        
+        // 应用特殊元素效果
+        matches.forEach(({ row, col }) => {
+          const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+          if (cell) cell.classList.add('matched');
+        });
+        
+        // 生成特殊元素
+        special生成.forEach(({ row, col, type }) => {
+          gameState.board[row][col].special = type;
+        });
+        
+        await sleep(300);
+        
+        // 特殊元素爆炸
+        matches.forEach(({ row, col }) => {
+          const cellData = gameState.board[row][col];
+          if (cellData.special === 'bomb') {
+            explodeBomb(row, col);
+          } else if (cellData.special === 'rainbow') {
+            explodeRainbow(cellData.type);
+          }
+        });
+        
+        removeMatches(gameState.board);
+        fillBoard(gameState.board);
+        renderBoard();
+        
+        updateUI();
+        await sleep(200);
+      }
+    }
+    
+    function explodeBomb(row, col) {
+      for (let r = Math.max(0, row - 1); r <= Math.min(BOARD_SIZE - 1, row + 1); r++) {
+        for (let c = Math.max(0, col - 1); c <= Math.min(BOARD_SIZE - 1, col + 1); c++) {
+          if (gameState.board[r][c].type) {
+            gameState.score += 20;
+          }
+          gameState.board[r][c] = { type: null, special: null };
+        }
+      }
+    }
+    
+    function explodeRainbow(targetType) {
+      if (!targetType) return;
+      
+      for (let row = 0; row < BOARD_SIZE; row++) {
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          if (gameState.board[row][col].type === targetType) {
+            gameState.score += 15;
+            gameState.board[row][col] = { type: null, special: null };
+          }
+        }
+      }
+    }
+    
+    function showCombo(combo) {
+      const comboEl = document.createElement('div');
+      comboEl.className = 'combo-display';
+      comboEl.textContent = `${combo}连击!`;
+      document.body.appendChild(comboEl);
+      
+      setTimeout(() => comboEl.remove(), 800);
+    }
+    
+    function checkGameEnd() {
+      if (gameState.score >= gameState.targetScore) {
+        audio.playWin();
+        showWinModal();
+      } else if (gameState.moves <= 0) {
+        audio.playLose();
+        showLoseModal();
+      }
+    }
+    
+    function showWinModal() {
+      const stars = getStars(gameState.score, gameState.targetScore);
+      document.getElementById('winStars').textContent = '⭐'.repeat(stars);
+      document.getElementById('winScore').textContent = gameState.score;
+      document.getElementById('winText').textContent = getWinText(stars);
+      document.getElementById('winModal').classList.add('active');
+      
+      saveScore();
+      updateStats();
+      
+      if (gameState.level >= levelConfigs.length) {
+        gameState.level = levelConfigs.length;
+      }
+    }
+    
+    function showLoseModal() {
+      document.getElementById('loseScore').textContent = gameState.score;
+      document.getElementById('loseText').textContent = '步数用完了，再试一次！';
+      document.getElementById('loseModal').classList.add('active');
+      updateStats();
+    }
+    
+    function getStars(score, target) {
+      const ratio = score / target;
+      if (ratio >= 2) return 3;
+      if (ratio >= 1.5) return 2;
+      return 1;
+    }
+    
+    function getWinText(stars) {
+      const texts = ['', '还不错！', '很棒了！', '太厉害了！'];
+      return texts[stars];
+    }
+    
+    function closeModal() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    }
+    
+    function nextLevel() {
+      closeModal();
+      gameState.level++;
+      startLevel();
+    }
+    
+    function restartLevel() {
+      closeModal();
+      startLevel();
+    }
+    
+    function updateStats() {
+      stats.totalGames++;
+      if (gameState.score > stats.highScore) stats.highScore = gameState.score;
+      if (gameState.level > stats.maxLevel) stats.maxLevel = gameState.level;
+      stats.totalScore += gameState.score;
+      saveStats();
+    }
+    
+    function saveScore() {
+      // 本地排行榜
+      const leaderboard = JSON.parse(localStorage.getItem('chineseMatch3_leaderboard') || '[]');
+      
+      leaderboard.push({
+        name: gameState.nickname,
+        score: gameState.score,
+        level: gameState.level,
+        date: Date.now()
+      });
+      
+      leaderboard.sort((a, b) => b.score - a.score);
+      const top10 = leaderboard.slice(0, 10);
+      localStorage.setItem('chineseMatch3_leaderboard', JSON.stringify(top10));
+      
+      // 保存最高关卡
+      if (gameState.level > parseInt(localStorage.getItem('chineseMatch3_maxLevel') || '0')) {
+        localStorage.setItem('chineseMatch3_maxLevel', gameState.level.toString());
+      }
+      
+      // 发送到云端排行榜
+      submitCloudScore(gameState.nickname, gameState.score, gameState.level);
+    }
+    
+    // ============ 排行榜 ============
+    async function submitCloudScore(name, score, level) {
+      try {
+        await fetch(`${CLOUD_API}/leaderboard`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, score, level })
+        });
+      } catch (e) {
+        console.log('云端排行榜暂不可用');
+      }
+    }
+    
+    async function fetchCloudLeaderboard() {
+      try {
+        const res = await fetch(`${CLOUD_API}/leaderboard`);
+        const data = await res.json();
+        return data.slice(0, 10);
+      } catch (e) {
+        return [];
+      }
+    }
+    
+    let currentLeaderboardType = 'local';
+    
+    async function showLeaderboard() {
+      currentLeaderboardType = 'local';
+      document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.leaderboard-tab:first-child').classList.add('active');
+      
+      const listEl = document.getElementById('leaderboardList');
+      const localData = JSON.parse(localStorage.getItem('chineseMatch3_leaderboard') || '[]');
+      
+      if (localData.length === 0) {
+        listEl.innerHTML = '<div class="empty-leaderboard">暂无记录，快来挑战吧！</div>';
+      } else {
+        listEl.innerHTML = localData.map((entry, index) => `
+          <div class="leaderboard-item">
+            <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+            <div class="leaderboard-info">
+              <div class="leaderboard-name">${entry.name}</div>
+              <div class="leaderboard-level">关卡 ${entry.level}</div>
+            </div>
+            <div class="leaderboard-score">${entry.score}</div>
+          </div>
+        `).join('');
+      }
+      
+      showScreen('leaderboardScreen');
+    }
+    
+    async function switchLeaderboard(type) {
+      currentLeaderboardType = type;
+      document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.leaderboard-tab:${type === 'local' ? 'first' : 'last'}-child`).classList.add('active');
+      
+      const listEl = document.getElementById('leaderboardList');
+      
+      if (type === 'local') {
+        const localData = JSON.parse(localStorage.getItem('chineseMatch3_leaderboard') || '[]');
+        if (localData.length === 0) {
+          listEl.innerHTML = '<div class="empty-leaderboard">暂无记录</div>';
+        } else {
+          listEl.innerHTML = localData.map((entry, index) => `
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+              <div class="leaderboard-info">
+                <div class="leaderboard-name">${entry.name}</div>
+                <div class="leaderboard-level">关卡 ${entry.level}</div>
+              </div>
+              <div class="leaderboard-score">${entry.score}</div>
+            </div>
+          `).join('');
+        }
+      } else {
+        listEl.innerHTML = '<div class="empty-leaderboard">加载中...</div>';
+        const cloudData = await fetchCloudLeaderboard();
+        
+        if (cloudData.length === 0) {
+          listEl.innerHTML = '<div class="empty-leaderboard">暂无记录<br><small>（请先配置云端服务器地址）</small></div>';
+        } else {
+          listEl.innerHTML = cloudData.map((entry, index) => `
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">${index + 1}</div>
+              <div class="leaderboard-info">
+                <div class="leaderboard-name">${entry.name}</div>
+                <div class="leaderboard-level">关卡 ${entry.level}</div>
+              </div>
+              <div class="leaderboard-score">${entry.score}</div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+    
+    // ============ 多人在线 ============
+    let ws = null;
+    
+    function showMultiplayer() {
+      showScreen('multiplayerScreen');
+      audio.playClick();
+    }
+    
+    function createRoom() {
+      audio.init();
+      audio.playClick();
+      
+      const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+      gameState.roomId = roomId;
+      gameState.playerId = gameState.nickname;
+      
+      document.getElementById('roomCode').textContent = roomId;
+      document.getElementById('roomSection').style.display = 'block';
+      document.getElementById('playerList').innerHTML = `
+        <div class="player-avatar" title="${gameState.nickname}">${gameState.nickname[0]}</div>
+      `;
+      document.getElementById('playerCount').textContent = '1';
+      
+      // 连接WebSocket服务器（需要配置）
+      connectWebSocket(roomId);
+    }
+    
+    function joinRoom() {
+      audio.init();
+      audio.playClick();
+      
+      const roomId = document.getElementById('roomCodeInput').value.toUpperCase();
+      if (!roomId || roomId.length < 4) {
+        alert('请输入有效的房间号');
+        return;
+      }
+      
+      gameState.roomId = roomId;
+      gameState.playerId = gameState.nickname;
+      
+      document.getElementById('roomCode').textContent = roomId;
+      document.getElementById('roomSection').style.display = 'block';
+      
+      connectWebSocket(roomId);
+    }
+    
+    function connectWebSocket(roomId) {
+      const wsUrl = `wss://your-game-server.com/ws?room=${roomId}&player=${encodeURIComponent(gameState.nickname)}`;
+      
+      try {
+        ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          addChatMessage('系统', '已连接到游戏房间');
+        };
+        
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          handleWebSocketMessage(data);
+        };
+        
+        ws.onclose = () => {
+          addChatMessage('系统', '连接已断开');
+        };
+        
+        ws.onerror = (error) => {
+          console.log('WebSocket error:', error);
+          addChatMessage('系统', '服务器暂不可用，请配置服务器地址');
+        };
+      } catch (e) {
+        addChatMessage('系统', 'WebSocket连接失败，请先配置服务端');
+      }
+    }
+    
+    function handleWebSocketMessage(data) {
+      switch (data.type) {
+        case 'player_joined':
+          const playerCount = document.getElementById('playerCount');
+          playerCount.textContent = parseInt(playerCount.textContent) + 1;
+          
+          const playerList = document.getElementById('playerList');
+          const newPlayer = document.createElement('div');
+          newPlayer.className = 'player-avatar';
+          newPlayer.title = data.player;
+          newPlayer.textContent = data.player[0];
+          playerList.appendChild(newPlayer);
+          
+          addChatMessage('系统', `${data.player} 加入了房间`);
+          break;
+          
+        case 'chat':
+          addChatMessage(data.player, data.message);
+          break;
+          
+        case 'game_start':
+          startMultiplayerGame();
+          break;
+      }
+    }
+    
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      addChatMessage(gameState.nickname, message);
+      
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'chat',
+          player: gameState.nickname,
+          message: message
+        }));
+      }
+      
+      input.value = '';
+    }
+    
+    function addChatMessage(player, message) {
+      const container = document.getElementById('chatMessages');
+      const msg = document.createElement('div');
+      msg.className = 'chat-message';
+      msg.innerHTML = `<strong>${player}:</strong> ${message}`;
+      container.appendChild(msg);
+      container.scrollTop = container.scrollHeight;
+    }
+    
+    function leaveRoom() {
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      
+      gameState.roomId = null;
+      document.getElementById('roomSection').style.display = 'none';
+      document.getElementById('chatMessages').innerHTML = '';
+    }
+    
+    function startMultiplayerGame() {
+      gameState.isMultiplayer = true;
+      startLevel();
+    }
+    
+    // ============ 界面导航 ============
+    function showStats() {
+      loadStats();
+      showScreen('statsScreen');
+      audio.playClick();
+    }
+    
+    function startGame() {
+      audio.init();
+      audio.playClick();
+      gameState.level = parseInt(localStorage.getItem('chineseMatch3_maxLevel') || '1');
+      startLevel();
+    }
+    
+    function startLevel() {
+      const config = levelConfigs[Math.min(gameState.level - 1, levelConfigs.length - 1)];
+      
+      gameState.board = generateBoard();
+      gameState.score = 0;
+      gameState.moves = config.moves;
+      gameState.targetScore = config.target;
+      gameState.selectedCell = null;
+      gameState.isProcessing = false;
+      gameState.combo = 0;
+      
+      updateUI();
+      renderBoard();
+      
+      showScreen('gameScreen');
+    }
+    
+    function updateUI() {
+      document.getElementById('levelDisplay').textContent = gameState.level;
+      document.getElementById('scoreDisplay').textContent = gameState.score;
+      document.getElementById('movesDisplay').textContent = gameState.moves;
+      document.getElementById('targetDisplay').textContent = gameState.targetScore;
+      
+      const progress = Math.min(100, (gameState.score / gameState.targetScore) * 100);
+      document.getElementById('progressFill').style.width = progress + '%';
+    }
+    
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+    
+    function showMainMenu() {
+      closeModal();
+      showScreen('mainMenu');
+    }
+    
+    function showSettings() {
+      const nicknameInput = document.getElementById('nicknameInput');
+      nicknameInput.addEventListener('change', (e) => {
+        gameState.nickname = e.target.value || '玩家';
+        saveSettings();
+      });
+      
+      showScreen('settingsScreen');
+      audio.playClick();
+    }
+    
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    window.onload = function() {
+      loadSettings();
+      loadStats();
+      
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+      }, 1000);
+    };
+  </script>
+</body>
+</html>
